@@ -68,7 +68,9 @@ export default function JobSummarySlide() {
       <div className="content-slide__header">
         <p className="content-kicker">Operational Snapshot</p>
         <h2 className="content-title">
-          Q1 Job Completion &amp; Operational Summary
+          Q1 Job Completion &amp;
+          <br />
+          Operational Summary
         </h2>
       </div>
 

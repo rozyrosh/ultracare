@@ -57,7 +57,9 @@ export default function MonthlyBreakdownSlide() {
           <div>
             <p className="content-kicker">Month by Month</p>
             <h2 className="content-title">
-              Monthly Financial Breakdown
+              Monthly Financial
+              <br />
+              Breakdown
               <span className="month-header__range">April – June 2026</span>
             </h2>
           </div>

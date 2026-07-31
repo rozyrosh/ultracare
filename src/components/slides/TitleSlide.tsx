@@ -52,13 +52,7 @@ export default function TitleSlide() {
       </div>
 
       <header className="title-slide__topbar">
-        <span>IT Service Center</span>
-        <span className="topbar-rule" aria-hidden="true" />
         <div className="topbar-right">
-          <span className="topbar-status">
-            <span className="topbar-dot" aria-hidden="true" />
-            Confidential
-          </span>
           <Image
             src="/ultracare-logo.png"
             alt="Ultracare"
@@ -102,12 +96,6 @@ export default function TitleSlide() {
       <footer className="title-slide__footer">
         <div className="footer-left">
           <span className="footer-num">{displayNumber}</span>
-          <span className="footer-rule" aria-hidden="true" />
-          <span className="footer-label">Opening</span>
-        </div>
-        <div className="footer-scroll" aria-hidden="true">
-          <span className="footer-scroll__line" />
-          <span>Scroll</span>
         </div>
       </footer>
 

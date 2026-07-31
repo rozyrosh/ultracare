@@ -70,7 +70,9 @@ export default function RevenueAnalysisSlide() {
       <div className="content-slide__header">
         <p className="content-kicker">Category Breakdown</p>
         <h2 className="content-title">
-          Operational Revenue Analysis by Category
+          Operational Revenue Analysis
+          <br />
+          by Category
         </h2>
       </div>
 

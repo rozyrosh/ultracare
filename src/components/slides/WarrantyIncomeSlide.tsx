@@ -41,7 +41,11 @@ export default function WarrantyIncomeSlide() {
     >
       <div className="content-slide__header">
         <p className="content-kicker">Support Income</p>
-        <h2 className="content-title">Warranty Support Income Analysis</h2>
+        <h2 className="content-title">
+          Warranty Support
+          <br />
+          Income Analysis
+        </h2>
       </div>
 
       <div className="warranty-layout">

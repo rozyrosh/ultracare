@@ -56,7 +56,9 @@ export default function ExecutiveSummarySlide() {
       <div className="content-slide__header exec-header">
         <p className="content-kicker">Financial Highlights</p>
         <h2 className="content-title">
-          Executive Summary &amp; Q1 Financial Highlights
+          Executive Summary &amp;
+          <br />
+          Q1 Financial Highlights
         </h2>
       </div>
 

@@ -49,7 +49,9 @@ export default function ActionPlanSlide() {
       <div className="content-slide__header action-header">
         <p className="content-kicker">Q2 Outlook</p>
         <h2 className="content-title">
-          Operational Challenges &amp; Strategic Action Plan for Q2
+          Operational Challenges &amp;
+          <br />
+          Strategic Action Plan for Q2
         </h2>
       </div>
 

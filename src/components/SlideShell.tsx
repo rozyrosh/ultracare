@@ -8,7 +8,7 @@ type SlideShellProps = {
   children: ReactNode;
   label: string;
   slideNumber?: string;
-  slideLabel: string;
+  slideLabel?: string;
   className?: string;
   showLogo?: boolean;
 };
@@ -27,7 +27,6 @@ export default function SlideShell({
   children,
   label,
   slideNumber = "00",
-  slideLabel,
   className = "",
   showLogo = true,
 }: SlideShellProps) {
@@ -73,16 +72,7 @@ export default function SlideShell({
       </div>
 
       <header className="slide-topbar">
-        <div className="slide-topbar__left">
-          <span className="slide-index-num">{displayNumber}</span>
-          <span className="slide-index-rule" aria-hidden="true" />
-          <span className="slide-index-label">{slideLabel}</span>
-        </div>
         <div className="slide-topbar__right">
-          <span className="topbar-status">
-            <span className="topbar-dot" aria-hidden="true" />
-            Confidential
-          </span>
           {showLogo ? (
             <Image
               src="/ultracare-logo.png"
@@ -111,6 +101,10 @@ export default function SlideShell({
           style={{ width: `${progress}%` }}
         />
       </div>
+
+      <footer className="slide-footer">
+        <span className="footer-num">{displayNumber}</span>
+      </footer>
 
       <SlideBrandMark />
     </section>

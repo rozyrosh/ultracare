@@ -128,7 +128,11 @@ export default function ProfitLossSlide() {
     >
       <div className="content-slide__header pnl-header">
         <p className="content-kicker">Year to Date</p>
-        <h2 className="content-title">Profit &amp; Loss (P&amp;L) Statement YTD</h2>
+        <h2 className="content-title">
+          Profit &amp; Loss (P&amp;L)
+          <br />
+          Statement YTD
+        </h2>
       </div>
 
       <div className="pnl-layout">
