@@ -68,11 +68,10 @@ export default function RevenueAnalysisSlide() {
       slideLabel="Revenue"
     >
       <div className="content-slide__header">
-        <p className="content-kicker">Category Breakdown</p>
         <h2 className="content-title">
           Operational Revenue Analysis
           <br />
-          by Category
+          <span className="content-title__accent">by Category</span>
         </h2>
       </div>
 

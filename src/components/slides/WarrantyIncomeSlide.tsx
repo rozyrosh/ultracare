@@ -40,11 +40,10 @@ export default function WarrantyIncomeSlide() {
       slideLabel="Warranty"
     >
       <div className="content-slide__header">
-        <p className="content-kicker">Support Income</p>
         <h2 className="content-title">
           Warranty Support
           <br />
-          Income Analysis
+          <span className="content-title__accent">Income Analysis</span>
         </h2>
       </div>
 

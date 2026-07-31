@@ -127,11 +127,10 @@ export default function ProfitLossSlide() {
       slideLabel="P&L"
     >
       <div className="content-slide__header pnl-header">
-        <p className="content-kicker">Year to Date</p>
         <h2 className="content-title">
           Profit &amp; Loss (P&amp;L)
           <br />
-          Statement YTD
+          <span className="content-title__accent">Statement YTD</span>
         </h2>
       </div>
 

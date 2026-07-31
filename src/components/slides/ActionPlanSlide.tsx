@@ -47,11 +47,12 @@ export default function ActionPlanSlide() {
       slideLabel="Action"
     >
       <div className="content-slide__header action-header">
-        <p className="content-kicker">Q2 Outlook</p>
         <h2 className="content-title">
           Operational Challenges &amp;
           <br />
-          Strategic Action Plan for Q2
+          <span className="content-title__accent">
+            Strategic Action Plan for Q2
+          </span>
         </h2>
       </div>
 

@@ -66,11 +66,10 @@ export default function JobSummarySlide() {
       slideLabel="Operations"
     >
       <div className="content-slide__header">
-        <p className="content-kicker">Operational Snapshot</p>
         <h2 className="content-title">
           Q1 Job Completion &amp;
           <br />
-          Operational Summary
+          <span className="content-title__accent">Operational Summary</span>
         </h2>
       </div>
 

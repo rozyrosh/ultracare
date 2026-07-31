@@ -54,11 +54,10 @@ export default function ExecutiveSummarySlide() {
       slideLabel="Finance"
     >
       <div className="content-slide__header exec-header">
-        <p className="content-kicker">Financial Highlights</p>
         <h2 className="content-title">
           Executive Summary &amp;
           <br />
-          Q1 Financial Highlights
+          <span className="content-title__accent">Q1 Financial Highlights</span>
         </h2>
       </div>
 

@@ -55,18 +55,13 @@ export default function MonthlyBreakdownSlide() {
       <div className="month-stack">
         <div className="content-slide__header month-header">
           <div>
-            <p className="content-kicker">Month by Month</p>
             <h2 className="content-title">
               Monthly Financial
               <br />
-              Breakdown
+              <span className="content-title__accent">Breakdown</span>
               <span className="month-header__range">April – June 2026</span>
             </h2>
           </div>
-          <p className="month-header__hint" aria-hidden="true">
-            Q1 Path
-            <span>01 → 03</span>
-          </p>
         </div>
 
         <div className="month-trail" aria-label="Q1 monthly progression">
