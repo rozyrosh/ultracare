@@ -1,14 +1,19 @@
+"use client";
+
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { useSlideIndex, useSlideNumber, useSlideTotal } from "@/components/SlideIndexContext";
 
 type SlideShellProps = {
   children: ReactNode;
   label: string;
-  slideNumber: string;
+  slideNumber?: string;
   slideLabel: string;
   className?: string;
   showLogo?: boolean;
 };
+
+const PATTERN_COUNT = 6;
 
 export function SlideBrandMark() {
   return (
@@ -21,16 +26,42 @@ export function SlideBrandMark() {
 export default function SlideShell({
   children,
   label,
-  slideNumber,
+  slideNumber = "00",
   slideLabel,
   className = "",
   showLogo = true,
 }: SlideShellProps) {
+  const displayNumber = useSlideNumber(slideNumber);
+  const slideIndex = useSlideIndex() ?? 1;
+  const slideTotal = useSlideTotal() ?? 1;
+  const pattern = ((Math.max(slideIndex, 1) - 1) % PATTERN_COUNT) + 1;
+  const progress = Math.min(100, Math.max(0, (slideIndex / slideTotal) * 100));
+
   return (
     <section
-      className={`slide content-slide ${className}`.trim()}
+      className={`slide content-slide content-slide--pattern-${pattern} ${className}`.trim()}
       aria-label={label}
     >
+      <div
+        className={`slide-bg-art slide-bg-art--pattern-${pattern}`}
+        aria-hidden="true"
+      >
+        <span className="slide-bg-art__bloom" />
+        <span className="slide-bg-art__blade" />
+        <span className="slide-bg-art__ring slide-bg-art__ring--a" />
+        <span className="slide-bg-art__ring slide-bg-art__ring--b" />
+        <span className="slide-bg-art__ring slide-bg-art__ring--c" />
+        <span className="slide-bg-art__beam" />
+        <span className="slide-bg-art__sparks">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="slide-bg-art__mark">UC</span>
+      </div>
+
       <div className="slide-rail" aria-hidden="true" />
       <div className="slide-grain" aria-hidden="true" />
 
@@ -43,7 +74,7 @@ export default function SlideShell({
 
       <header className="slide-topbar">
         <div className="slide-topbar__left">
-          <span className="slide-index-num">{slideNumber}</span>
+          <span className="slide-index-num">{displayNumber}</span>
           <span className="slide-index-rule" aria-hidden="true" />
           <span className="slide-index-label">{slideLabel}</span>
         </div>
@@ -65,6 +96,21 @@ export default function SlideShell({
       </header>
 
       <div className="slide-body">{children}</div>
+
+      <div
+        className="slide-progress"
+        role="progressbar"
+        aria-label="Presentation progress"
+        aria-valuemin={1}
+        aria-valuemax={slideTotal}
+        aria-valuenow={slideIndex}
+        aria-valuetext={`Slide ${slideIndex} of ${slideTotal}`}
+      >
+        <span
+          className="slide-progress__fill"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
 
       <SlideBrandMark />
     </section>

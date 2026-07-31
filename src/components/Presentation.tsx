@@ -1,12 +1,16 @@
 "use client";
 
 import {
+  Children,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
+  type DragEvent,
   type ReactNode,
 } from "react";
+import { SlideIndexProvider } from "@/components/SlideIndexContext";
 
 export type SlideMeta = {
   title: string;
@@ -46,15 +50,71 @@ function PresentIcon() {
   );
 }
 
+function reorderList<T>(list: T[], from: number, to: number) {
+  if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) {
+    return list;
+  }
+  const next = [...list];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
+function remapActiveIndex(active: number, from: number, to: number) {
+  if (active === from) return to;
+  if (from < active && to >= active) return active - 1;
+  if (from > active && to <= active) return active + 1;
+  return active;
+}
+
 export default function Presentation({ children, slides }: PresentationProps) {
   const shellRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const skipInitialMotion = useRef(true);
   const cursorTimerRef = useRef<number | null>(null);
   const ignoreCursorUntilRef = useRef(0);
+  const dragFromRef = useRef<number | null>(null);
+  const didDragRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPresenting, setIsPresenting] = useState(false);
   const [cursorHidden, setCursorHidden] = useState(false);
+  const [order, setOrder] = useState(() => slides.map((_, index) => index));
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
+  const childArray = useMemo(() => Children.toArray(children), [children]);
+
+  useEffect(() => {
+    setOrder((prev) => {
+      if (prev.length === slides.length) return prev;
+      return slides.map((_, index) => index);
+    });
+  }, [slides.length]);
+
+  const orderedSlides = useMemo(
+    () => order.map((sourceIndex) => slides[sourceIndex]).filter(Boolean),
+    [order, slides],
+  );
+
+  const orderedChildren = useMemo(
+    () =>
+      order
+        .map((sourceIndex, displayIndex) => {
+          const child = childArray[sourceIndex];
+          if (!child) return null;
+          return (
+            <SlideIndexProvider
+              key={`slide-source-${sourceIndex}`}
+              index={displayIndex + 1}
+              total={order.length}
+            >
+              {child}
+            </SlideIndexProvider>
+          );
+        })
+        .filter(Boolean),
+    [order, childArray],
+  );
 
   const getSlideElements = useCallback(() => {
     const container = containerRef.current;
@@ -127,6 +187,72 @@ export default function Presentation({ children, slides }: PresentationProps) {
     [getCurrentIndex, goToIndex],
   );
 
+  const applyReorder = useCallback((from: number, to: number) => {
+    if (from === to) return;
+
+    setOrder((prev) => reorderList(prev, from, to));
+    setActiveIndex((prev) => {
+      const nextActive = remapActiveIndex(prev, from, to);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const slideEls = containerRef.current
+            ? Array.from(
+                containerRef.current.querySelectorAll<HTMLElement>(".slide"),
+              )
+            : [];
+          slideEls[nextActive]?.scrollIntoView({
+            behavior: "auto",
+            block: "start",
+          });
+        });
+      });
+      return nextActive;
+    });
+  }, []);
+
+  const onThumbDragStart = useCallback(
+    (event: DragEvent<HTMLButtonElement>, index: number) => {
+      didDragRef.current = false;
+      dragFromRef.current = index;
+      setDraggingIndex(index);
+      setDropIndex(index);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", String(index));
+    },
+    [],
+  );
+
+  const onThumbDragOver = useCallback(
+    (event: DragEvent<HTMLButtonElement>, index: number) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+      if (dragFromRef.current === null || dragFromRef.current === index) return;
+      setDropIndex(index);
+    },
+    [],
+  );
+
+  const onThumbDrop = useCallback(
+    (event: DragEvent<HTMLButtonElement>, index: number) => {
+      event.preventDefault();
+      const from = dragFromRef.current;
+      if (from !== null && from !== index) {
+        didDragRef.current = true;
+        applyReorder(from, index);
+      }
+      dragFromRef.current = null;
+      setDraggingIndex(null);
+      setDropIndex(null);
+    },
+    [applyReorder],
+  );
+
+  const onThumbDragEnd = useCallback(() => {
+    dragFromRef.current = null;
+    setDraggingIndex(null);
+    setDropIndex(null);
+  }, []);
+
   const exitPresentMode = useCallback(async () => {
     setIsPresenting(false);
     setCursorHidden(false);
@@ -143,7 +269,6 @@ export default function Presentation({ children, slides }: PresentationProps) {
 
   const enterPresentMode = useCallback(
     async (fromIndex = 0) => {
-      // Hide pointer immediately on slideshow start (before React paint)
       setCursorHidden(true);
       setIsPresenting(true);
       ignoreCursorUntilRef.current = Date.now() + 500;
@@ -158,7 +283,6 @@ export default function Presentation({ children, slides }: PresentationProps) {
         }
       }
 
-      // Wait for sidebar hide / fullscreen layout before scrolling
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           goToIndex(fromIndex, "auto");
@@ -212,7 +336,7 @@ export default function Presentation({ children, slides }: PresentationProps) {
         goToIndex(0);
       } else if (event.key === "End") {
         event.preventDefault();
-        goToIndex(slides.length - 1);
+        goToIndex(orderedSlides.length - 1);
       }
     };
 
@@ -225,7 +349,7 @@ export default function Presentation({ children, slides }: PresentationProps) {
     goToIndex,
     goToSlide,
     isPresenting,
-    slides.length,
+    orderedSlides.length,
   ]);
 
   useEffect(() => {
@@ -254,7 +378,7 @@ export default function Presentation({ children, slides }: PresentationProps) {
     updateActive();
     container.addEventListener("scroll", updateActive, { passive: true });
     return () => container.removeEventListener("scroll", updateActive);
-  }, [getSlideElements]);
+  }, [getSlideElements, order]);
 
   useEffect(() => {
     const slideEls = getSlideElements();
@@ -275,7 +399,6 @@ export default function Presentation({ children, slides }: PresentationProps) {
       return;
     }
 
-    // Hold content hidden until the scroll settles, then replay the slow entrance
     activeSlide.classList.add("is-motion-pending");
     activeSlide.classList.remove("is-entering");
 
@@ -284,7 +407,7 @@ export default function Presentation({ children, slides }: PresentationProps) {
     }, 520);
 
     return () => window.clearTimeout(timer);
-  }, [activeIndex, getSlideElements, restartSlideMotion]);
+  }, [activeIndex, getSlideElements, restartSlideMotion, order]);
 
   useEffect(() => {
     if (!isPresenting) {
@@ -309,7 +432,6 @@ export default function Presentation({ children, slides }: PresentationProps) {
     };
 
     const onMouseMove = () => {
-      // Ignore click/release movement right after entering slideshow
       if (Date.now() < ignoreCursorUntilRef.current) return;
       setCursorHidden(false);
       shellRef.current?.classList.remove("cursor-hidden");
@@ -350,19 +472,44 @@ export default function Presentation({ children, slides }: PresentationProps) {
             <PresentIcon />
           </button>
         </div>
-        <nav className="slide-sidebar__list">
-          {slides.map((slide, index) => {
+        <nav
+          className="slide-sidebar__list"
+          aria-label="Drag slides to reorder"
+        >
+          {orderedSlides.map((slide, index) => {
+            const sourceIndex = order[index];
             const isActive = index === activeIndex;
-            const number = String(index + 1).padStart(2, "0");
+            const isDragging = draggingIndex === index;
+            const isDropTarget =
+              dropIndex === index && draggingIndex !== null && draggingIndex !== index;
 
             return (
               <button
-                key={`${number}-${slide.title}`}
+                key={`slide-source-${sourceIndex}`}
                 type="button"
-                className={`slide-thumb${isActive ? " is-active" : ""}`}
-                onClick={() => goToIndex(index)}
+                draggable
+                className={[
+                  "slide-thumb",
+                  isActive ? "is-active" : "",
+                  isDragging ? "is-dragging" : "",
+                  isDropTarget ? "is-drop-target" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                onClick={() => {
+                  if (didDragRef.current) {
+                    didDragRef.current = false;
+                    return;
+                  }
+                  goToIndex(index);
+                }}
+                onDragStart={(event) => onThumbDragStart(event, index)}
+                onDragOver={(event) => onThumbDragOver(event, index)}
+                onDrop={(event) => onThumbDrop(event, index)}
+                onDragEnd={onThumbDragEnd}
                 aria-current={isActive ? "true" : undefined}
-                aria-label={`Go to slide ${index + 1}: ${slide.title}`}
+                aria-label={`Go to slide ${index + 1}: ${slide.title}. Drag to reorder.`}
+                title="Drag to reorder"
               >
                 <span className="slide-thumb__num">{index + 1}</span>
                 <span className="slide-thumb__card">
@@ -376,7 +523,7 @@ export default function Presentation({ children, slides }: PresentationProps) {
         </nav>
         <div className="slide-sidebar__foot">
           <span>
-            {activeIndex + 1} / {slides.length}
+            {activeIndex + 1} / {orderedSlides.length}
           </span>
           <button
             type="button"
@@ -397,7 +544,7 @@ export default function Presentation({ children, slides }: PresentationProps) {
         role="region"
         aria-label="Ultracare presentation"
       >
-        {children}
+        {orderedChildren}
       </div>
     </div>
   );

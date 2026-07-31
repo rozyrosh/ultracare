@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
 import FlowBand from "@/components/FlowBand";
+import { useSlideNumber } from "@/components/SlideIndexContext";
 import { SlideBrandMark } from "@/components/SlideShell";
 
 export default function TitleSlide() {
   const slideRef = useRef<HTMLElement>(null);
   const bandRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useRef(false);
+  const displayNumber = useSlideNumber("01");
 
   useEffect(() => {
     reduceMotion.current = window.matchMedia(
@@ -99,7 +101,7 @@ export default function TitleSlide() {
 
       <footer className="title-slide__footer">
         <div className="footer-left">
-          <span className="footer-num">01</span>
+          <span className="footer-num">{displayNumber}</span>
           <span className="footer-rule" aria-hidden="true" />
           <span className="footer-label">Opening</span>
         </div>
